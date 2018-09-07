@@ -1,20 +1,19 @@
 <!DOCTYPE html>
 <html>
 	<head>
-	    <title>Bohan Chen</title>
+	    <title>Running Game</title>
 	    <meta name="viewport" content="width=device-width, initial-scale=1">
 	    <meta name="author" content="Bohan Chen">
 	    <!-- Css -->
 	    <link href="CSS/style.css" rel="stylesheet">  
 	</head>
 
-	<body onload="startGame()">
-		<br>
-		<button onmousedown="accelerate(-0.2)" onmouseup="accelerate(0.05)">ACCELERATE</button>
-		<p>Use the ACCELERATE button to stay in the air</p>
-		<p>How long can you stay alive?</p>
-
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<body  onload="startGame()">
+		<div id="game">
+		</div>
+		<div>
+			<h1>Use <b>arrowkeys</b> to <b>move</b>, <b>Spacebar</b> to <b>shoot</b></h1>
+		</div>
 		<script src="Js/game.js"></script>
 	</body>
 </html>
