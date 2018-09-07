@@ -1,4 +1,17 @@
+body {
+	background-color: #F0F8FF;
+}
+
 canvas {
-    border:1px solid #d3d3d3;
+    border:5px solid #FFFFFF;
     background-color: #f1f1f1;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+h1 {
+	text-align: center;
 }
