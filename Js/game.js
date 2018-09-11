@@ -1,18 +1,18 @@
 function startGame(level) {
     this.level = level;
     myGameArea.start();
-    myPlayer = new player(30, 30, "#A9A9A9", 235, 400);
-    myEnemy = new enemy(50, 50, "red", this.level);
 }
 
 var myGameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
-        this.canvas.width = 500;
+        this.canvas.width = 600;
         this.canvas.height = 500;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         this.interval = setInterval(updateGameArea, 10);
+        myPlayer = new player(30, 30, "#A9A9A9","#000000", 235, 400);
+        //myEnemy = new enemy(50, 50, "red", this.level);
         window.addEventListener('keydown', function (e) {
             myGameArea.keys = (myGameArea.keys || []);
             myGameArea.keys[e.keyCode] = (e.type == "keydown");
@@ -26,9 +26,11 @@ var myGameArea = {
     }
 }
 
-function player(width, height, color, x, y) { 
+function player(width, height, bodyColor, gunColor, x, y) { 
     this.width = width;
     this.height = height;
+    this.gunWidth = 0.2 * this.width;
+    this.gunHeight = 0.4 * this.height;
     this.speedX = 0;
     this.speedY = 0;    
     this.x = x;
@@ -45,29 +47,48 @@ function player(width, height, color, x, y) {
         }
         if (myGameArea.keys && myGameArea.keys[38] && myPlayer.y > 0) {
             myPlayer.speedY = -1; 
-            myPlayer.direction = "down";
+            myPlayer.direction = "up";
         }
         if (myGameArea.keys && myGameArea.keys[40] && myPlayer.y < 470) {
             myPlayer.speedY = 1; 
-            myPlayer.direction = "up";
+            myPlayer.direction = "down";
         }
-    }
-    this.update = function() {
-        this.control();
         this.x += this.speedX;
-        this.y += this.speedY;        
-        ctx = myGameArea.context;
-        ctx.fillStyle = color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        this.x += this.speedX;
-        this.y += this.speedY;
+        this.y += this.speedY;  
         myPlayer.speedX = 0;
         myPlayer.speedY = 0; 
     }
+    this.drawGun = function() {
+        ctx = myGameArea.context;
+        ctx.fillStyle = gunColor;
+        if (this.direction == "up") {
+            ctx.fillRect(this.x + 0.4 * this.width, this.y - this.gunHeight, this.gunWidth, this.gunHeight);
+        }
+        if (this.direction == "down") {
+            ctx.fillRect(this.x + 0.4 * this.width, this.y + this.height, this.gunWidth, this.gunHeight);
+        }
+        if (this.direction == "left") {
+            ctx.fillRect(this.x - this.gunHeight, this.y + 0.4 * this.width, this.gunHeight, this.gunWidth);
+        }   
+        if (this.direction == "right") {
+            ctx.fillRect(this.x + this.width, this.y + 0.4 * this.width, this.gunHeight, this.gunWidth);
+        }           
+    }
+    this.drawBody = function() {     
+        this.drawGun();
+        ctx = myGameArea.context;
+        ctx.fillStyle = bodyColor;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+    this.update = function() {
+        this.control();
+        this.drawBody();
+        console.log(this.direction);
+    }
 }
 
+/*
 function enemy(width, height, color, level) {
-    this.gamearea = myGameArea;
     this.width = width;
     this.height = height;
     this.speedX = 0.8;
@@ -92,9 +113,9 @@ function enemy(width, height, color, level) {
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 }
-
+*/
 function updateGameArea() {
     myGameArea.clear();  
     myPlayer.update();
-    myEnemy.update();  
+    //myEnemy.update();  
 }
