@@ -1,8 +1,8 @@
-var myGamePiece;
-
-function startGame() {
+function startGame(level) {
+    this.level = level;
     myGameArea.start();
-    myGamePiece = new component(30, 30, "red", 235, 400);
+    myPlayer = new player(30, 30, "#A9A9A9", 235, 400);
+    myEnemy = new enemy(50, 50, "red", this.level);
 }
 
 var myGameArea = {
@@ -26,33 +26,75 @@ var myGameArea = {
     }
 }
 
-function component(width, height, color, x, y) {
-    this.gamearea = myGameArea;
+function player(width, height, color, x, y) { 
     this.width = width;
     this.height = height;
     this.speedX = 0;
     this.speedY = 0;    
     this.x = x;
     this.y = y;    
+    this.direction = "up";
+    this.control = function() {
+        if (myGameArea.keys && myGameArea.keys[37] && myPlayer.x > 0) {
+            myPlayer.speedX = -1;
+            myPlayer.direction = "left";
+        }
+        if (myGameArea.keys && myGameArea.keys[39] && myPlayer.x < 470) {
+            myPlayer.speedX = 1; 
+            myPlayer.direction = "right";
+        }
+        if (myGameArea.keys && myGameArea.keys[38] && myPlayer.y > 0) {
+            myPlayer.speedY = -1; 
+            myPlayer.direction = "down";
+        }
+        if (myGameArea.keys && myGameArea.keys[40] && myPlayer.y < 470) {
+            myPlayer.speedY = 1; 
+            myPlayer.direction = "up";
+        }
+    }
     this.update = function() {
+        this.control();
+        this.x += this.speedX;
+        this.y += this.speedY;        
+        ctx = myGameArea.context;
+        ctx.fillStyle = color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        this.x += this.speedX;
+        this.y += this.speedY;
+        myPlayer.speedX = 0;
+        myPlayer.speedY = 0; 
+    }
+}
+
+function enemy(width, height, color, level) {
+    this.gamearea = myGameArea;
+    this.width = width;
+    this.height = height;
+    this.speedX = 0.8;
+    this.speedY = 0.8;    
+    this.x = Math.random() * 250;
+    this.y = Math.random() * 200;    
+    this.level = level;
+    this.move = function() {
+        this.x += this.speedX;
+        if (this.x > 450 || this.x < 0) {
+            this.speedX = -this.speedX;
+        }
+        this.y += this.speedY;      
+        if (this.y > 450 || this.y < 0) {
+            this.speedY = -this.speedY;
+        }  
+    }
+    this.update = function() {
+        this.move();
         ctx = myGameArea.context;
         ctx.fillStyle = color;
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
-    this.newPos = function() {
-        this.x += this.speedX;
-        this.y += this.speedY;        
-    }    
 }
 
 function updateGameArea() {
-    myGameArea.clear();
-    myGamePiece.speedX = 0;
-    myGamePiece.speedY = 0;    
-    if (myGameArea.keys && myGameArea.keys[37] && myGamePiece.x > 0) {myGamePiece.speedX = -1; }
-    if (myGameArea.keys && myGameArea.keys[39] && myGamePiece.x < 470) {myGamePiece.speedX = 1; }
-    if (myGameArea.keys && myGameArea.keys[38] && myGamePiece.y > 0) {myGamePiece.speedY = -1; }
-    if (myGameArea.keys && myGameArea.keys[40] && myGamePiece.y < 470) {myGamePiece.speedY = 1; }
-    myGamePiece.newPos();    
-    myGamePiece.update();
+    myGameArea.clear();  
+    myPlayer.update();
+    myEnemy.update();  
 }
