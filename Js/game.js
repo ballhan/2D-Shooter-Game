@@ -6,7 +6,7 @@ function startGame(level) {
 var myGameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
-        this.canvas.width = 600;
+        this.canvas.width = 500;
         this.canvas.height = 500;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
@@ -36,27 +36,31 @@ function player(width, height, bodyColor, gunColor, x, y) {
     this.x = x;
     this.y = y;    
     this.direction = "up";
+    this.shoot = false;
     this.control = function() {
         if (myGameArea.keys && myGameArea.keys[37] && myPlayer.x > 0) {
-            myPlayer.speedX = -1;
-            myPlayer.direction = "left";
+            this.speedX = -1;
+            this.direction = "left";
         }
         if (myGameArea.keys && myGameArea.keys[39] && myPlayer.x < 470) {
-            myPlayer.speedX = 1; 
-            myPlayer.direction = "right";
+            this.speedX = 1; 
+            this.direction = "right";
         }
         if (myGameArea.keys && myGameArea.keys[38] && myPlayer.y > 0) {
-            myPlayer.speedY = -1; 
-            myPlayer.direction = "up";
+            this.speedY = -1; 
+            this.direction = "up";
         }
         if (myGameArea.keys && myGameArea.keys[40] && myPlayer.y < 470) {
-            myPlayer.speedY = 1; 
-            myPlayer.direction = "down";
+            this.speedY = 1; 
+            this.direction = "down";
+        }
+        if (myGameArea.keys && myGameArea.keys[32]) {
+            this.shoot = true;
         }
         this.x += this.speedX;
         this.y += this.speedY;  
-        myPlayer.speedX = 0;
-        myPlayer.speedY = 0; 
+        this.speedX = 0;
+        this.speedY = 0; 
     }
     this.drawGun = function() {
         ctx = myGameArea.context;
@@ -83,7 +87,6 @@ function player(width, height, bodyColor, gunColor, x, y) {
     this.update = function() {
         this.control();
         this.drawBody();
-        console.log(this.direction);
     }
 }
 
