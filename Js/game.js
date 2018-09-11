@@ -103,7 +103,6 @@ function enemy(player) {
     this.speedX = 0.8;
     this.speedY = 0.8; 
     this.movement = Math.random();   
-    console.log(this.movement);
     //random spawn location
     this.x = Math.random() * 250;
     this.y = Math.random() * 200;
