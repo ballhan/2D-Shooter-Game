@@ -11,8 +11,8 @@ var myGameArea = {
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         this.interval = setInterval(updateGameArea, 10);
-        myPlayer = new player(30, 30, "#A9A9A9","#000000", 235, 400);
-        //myEnemy = new enemy(50, 50, "red", this.level);
+        myPlayer = new player();
+        myEnemy = new enemy();
         window.addEventListener('keydown', function (e) {
             myGameArea.keys = (myGameArea.keys || []);
             myGameArea.keys[e.keyCode] = (e.type == "keydown");
@@ -26,17 +26,20 @@ var myGameArea = {
     }
 }
 
-function player(width, height, bodyColor, gunColor, x, y) { 
-    this.width = width;
-    this.height = height;
-    this.gunWidth = 0.2 * this.width;
-    this.gunHeight = 0.4 * this.height;
+function player() { 
+    this.bodyWidth = 30;
+    this.bodyHeight = 30;
+    this.gunWidth = 6;
+    this.gunHeight = 12;
+    this.bodyColor = "#A9A9A9";
+    this.gunColor = "#000000";
+    this.x = 235;
+    this.y = 400;    
     this.speedX = 0;
     this.speedY = 0;    
-    this.x = x;
-    this.y = y;    
     this.direction = "up";
     this.shoot = false;
+    //keyboard control
     this.control = function() {
         if (myGameArea.keys && myGameArea.keys[37] && myPlayer.x > 0) {
             this.speedX = -1;
@@ -62,63 +65,110 @@ function player(width, height, bodyColor, gunColor, x, y) {
         this.speedX = 0;
         this.speedY = 0; 
     }
+    //draw gun according to movement
     this.drawGun = function() {
         ctx = myGameArea.context;
-        ctx.fillStyle = gunColor;
+        ctx.fillStyle = this.gunColor;
         if (this.direction == "up") {
-            ctx.fillRect(this.x + 0.4 * this.width, this.y - this.gunHeight, this.gunWidth, this.gunHeight);
+            ctx.fillRect(this.x + 0.4 * this.bodyWidth, this.y - this.gunHeight, this.gunWidth, this.gunHeight);
         }
         if (this.direction == "down") {
-            ctx.fillRect(this.x + 0.4 * this.width, this.y + this.height, this.gunWidth, this.gunHeight);
+            ctx.fillRect(this.x + 0.4 * this.bodyWidth, this.y + this.bodyHeight, this.gunWidth, this.gunHeight);
         }
         if (this.direction == "left") {
-            ctx.fillRect(this.x - this.gunHeight, this.y + 0.4 * this.width, this.gunHeight, this.gunWidth);
+            ctx.fillRect(this.x - this.gunHeight, this.y + 0.4 * this.bodyWidth, this.gunHeight, this.gunWidth);
         }   
         if (this.direction == "right") {
-            ctx.fillRect(this.x + this.width, this.y + 0.4 * this.width, this.gunHeight, this.gunWidth);
+            ctx.fillRect(this.x + this.bodyWidth, this.y + 0.4 * this.bodyWidth, this.gunHeight, this.gunWidth);
         }           
     }
-    this.drawBody = function() {     
+    //draw player with gun
+    this.drawPlayer = function() {     
         this.drawGun();
         ctx = myGameArea.context;
-        ctx.fillStyle = bodyColor;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.fillStyle = this.bodyColor;
+        ctx.fillRect(this.x, this.y, this.bodyWidth, this.bodyHeight);
     }
     this.update = function() {
         this.control();
-        this.drawBody();
+        this.drawPlayer();
     }
 }
 
-/*
-function enemy(width, height, color, level) {
-    this.width = width;
-    this.height = height;
+function enemy() {
+    this.player = player;
+    this.width = 40;
+    this.height = 40;
+    this.color = "#FF0000";
     this.speedX = 0.8;
-    this.speedY = 0.8;    
+    this.speedY = 0.8; 
+    this.movement = Math.random();   
+    console.log(this.movement);
+    //random spawn location
     this.x = Math.random() * 250;
-    this.y = Math.random() * 200;    
-    this.level = level;
+    this.y = Math.random() * 200;
+    //4 types of move chosen by random    
     this.move = function() {
-        this.x += this.speedX;
-        if (this.x > 450 || this.x < 0) {
+        //only move on x
+        if (this.movement < 0.2) {
+            this.x += this.speedX;
+            if (this.x > 460 || this.x < 0) {
             this.speedX = -this.speedX;
+            }
         }
-        this.y += this.speedY;      
-        if (this.y > 450 || this.y < 0) {
-            this.speedY = -this.speedY;
-        }  
+        //only move on y
+        if (this.movement >= 0.2 && this.movement < 0.4) {
+            this.y += this.speedY;      
+            if (this.y > 460 || this.y < 0) {
+                this.speedY = -this.speedY;
+            }  
+        }
+        //move on x and y
+        if (this.movement >= 0.4 && this.movement < 0.6) {
+            this.x += this.speedX;
+            if (this.x > 460 || this.x < 0) {
+            this.speedX = -this.speedX;
+            }
+            this.y += this.speedY;      
+            if (this.y > 460 || this.y < 0) {
+                this.speedY = -this.speedY;
+            }  
+        }
+        //follow player
+        if (this.movement >= 0.6) {
+            this.speedX = 0.3;
+            this.speedY = 0.3;
+            offset = 5;
+            if (this.x < myPlayer.x - offset && this.x < 460) {
+                this.x += this.speedX;
+            }
+            if (this.x > myPlayer.x - offset && this.x > 0) {
+                this.x -= this.speedX;                
+            }
+            if (this.y > myPlayer.y - offset && this.y > 0) {
+                this.y -= this.speedY;                
+            }
+            if (this.y < myPlayer.y - offset && this.y < 460) {
+                this.y += this.speedY;                
+            }
+
+        }
+
+    }
+    this.drawEnemy = function() {
+        ctx = myGameArea.context;
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+
     }
     this.update = function() {
         this.move();
-        ctx = myGameArea.context;
-        ctx.fillStyle = color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        this.drawEnemy();
     }
 }
-*/
+
 function updateGameArea() {
     myGameArea.clear();  
     myPlayer.update();
-    //myEnemy.update();  
+    myEnemy.update();  
 }
