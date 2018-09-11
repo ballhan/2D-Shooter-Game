@@ -29,23 +29,28 @@ var myGameArea = {
 function player() { 
     this.bodyWidth = 30;
     this.bodyHeight = 30;
-    this.gunWidth = 6;
-    this.gunHeight = 12;
+    this.gunWidth = 30;
+    this.gunHeight = 8;
+    this.bulletWidth = 10;
+    this.bulletHeight = 10;
     this.bodyColor = "#A9A9A9";
     this.gunColor = "#000000";
+    this.bulletColor = "#FFD700";
     this.x = 235;
     this.y = 400;    
     this.speedX = 0;
     this.speedY = 0;    
+    this.bulletSpeed = 5;
     this.direction = "up";
     this.shoot = false;
     //keyboard control
     this.control = function() {
+        playerMargin = 470;
         if (myGameArea.keys && myGameArea.keys[37] && myPlayer.x > 0) {
             this.speedX = -1;
             this.direction = "left";
         }
-        if (myGameArea.keys && myGameArea.keys[39] && myPlayer.x < 470) {
+        if (myGameArea.keys && myGameArea.keys[39] && myPlayer.x < playerMargin) {
             this.speedX = 1; 
             this.direction = "right";
         }
@@ -53,7 +58,7 @@ function player() {
             this.speedY = -1; 
             this.direction = "up";
         }
-        if (myGameArea.keys && myGameArea.keys[40] && myPlayer.y < 470) {
+        if (myGameArea.keys && myGameArea.keys[40] && myPlayer.y < playerMargin) {
             this.speedY = 1; 
             this.direction = "down";
         }
@@ -65,32 +70,57 @@ function player() {
         this.speedX = 0;
         this.speedY = 0; 
     }
+    //draw bullet 
+    this.drawBullet = function() {
+        bulletOffset = 10;
+        ctx = myGameArea.context;
+        ctx.fillStyle = this.bulletColor;
+        if (this.direction == "up") {
+            ctx.fillRect(this.x + bulletOffset, this.y - bulletOffset, this.bulletWidth, this.bulletHeight);
+        }
+        if (this.direction == "down") {
+            ctx.fillRect(this.x + bulletOffset, this.y + this.bodyHeight, this.bulletWidth, this.bulletHeight);
+        }
+        if (this.direction == "left") {
+            ctx.fillRect(this.x - this.bulletHeight, this.y + bulletOffset, this.bulletHeight, this.bulletWidth);
+        }   
+        if (this.direction == "right") {
+            ctx.fillRect(this.x + this.bodyWidth, this.y + bulletOffset, this.bulletHeight, this.bulletWidth);
+        }
+        this.shoot = false;           
+    }  
+    this.shootBullet = function(){
+        if (this.shoot == true) {
+            this.drawBullet();
+        }
+    }
     //draw gun according to movement
     this.drawGun = function() {
         ctx = myGameArea.context;
         ctx.fillStyle = this.gunColor;
         if (this.direction == "up") {
-            ctx.fillRect(this.x + 0.4 * this.bodyWidth, this.y - this.gunHeight, this.gunWidth, this.gunHeight);
+            ctx.fillRect(this.x, this.y, this.gunWidth, this.gunHeight);
         }
         if (this.direction == "down") {
-            ctx.fillRect(this.x + 0.4 * this.bodyWidth, this.y + this.bodyHeight, this.gunWidth, this.gunHeight);
+            ctx.fillRect(this.x, this.y + this.bodyHeight - this.gunHeight, this.gunWidth, this.gunHeight);
         }
         if (this.direction == "left") {
-            ctx.fillRect(this.x - this.gunHeight, this.y + 0.4 * this.bodyWidth, this.gunHeight, this.gunWidth);
+            ctx.fillRect(this.x, this.y, this.gunHeight, this.gunWidth);
         }   
         if (this.direction == "right") {
-            ctx.fillRect(this.x + this.bodyWidth, this.y + 0.4 * this.bodyWidth, this.gunHeight, this.gunWidth);
+            ctx.fillRect(this.x + this.bodyWidth - this.gunHeight, this.y, this.gunHeight, this.gunWidth);
         }           
     }
     //draw player with gun
     this.drawPlayer = function() {     
-        this.drawGun();
         ctx = myGameArea.context;
         ctx.fillStyle = this.bodyColor;
         ctx.fillRect(this.x, this.y, this.bodyWidth, this.bodyHeight);
+        this.drawGun();
     }
     this.update = function() {
         this.control();
+        this.shootBullet();
         this.drawPlayer();
     }
 }
@@ -108,46 +138,48 @@ function enemy(player) {
     this.y = Math.random() * 200;
     //4 types of move chosen by random    
     this.move = function() {
+        enemyMargin = 460;
         //only move on x
         if (this.movement < 0.2) {
             this.x += this.speedX;
-            if (this.x > 460 || this.x < 0) {
+            if (this.x > enemyMargin || this.x < 0) {
             this.speedX = -this.speedX;
             }
         }
         //only move on y
         if (this.movement >= 0.2 && this.movement < 0.4) {
             this.y += this.speedY;      
-            if (this.y > 460 || this.y < 0) {
+            if (this.y > enemyMargin || this.y < 0) {
                 this.speedY = -this.speedY;
             }  
         }
         //move on x and y
         if (this.movement >= 0.4 && this.movement < 0.6) {
             this.x += this.speedX;
-            if (this.x > 460 || this.x < 0) {
+            if (this.x > enemyMargin || this.x < 0) {
             this.speedX = -this.speedX;
             }
             this.y += this.speedY;      
-            if (this.y > 460 || this.y < 0) {
+            if (this.y > enemyMargin || this.y < 0) {
                 this.speedY = -this.speedY;
             }  
         }
         //follow player
         if (this.movement >= 0.6) {
+            //lower speed
             this.speedX = 0.3;
             this.speedY = 0.3;
-            offset = 5;
-            if (this.x < this.player.x - offset && this.x < 460) {
+            chaseOffset = 5;
+            if (this.x < this.player.x - chaseOffset && this.x < enemyMargin) {
                 this.x += this.speedX;
             }
-            if (this.x > this.player.x - offset && this.x > 0) {
+            if (this.x > this.player.x - chaseOffset && this.x > 0) {
                 this.x -= this.speedX;                
             }
-            if (this.y > this.player.y - offset && this.y > 0) {
+            if (this.y > this.player.y - chaseOffset && this.y > 0) {
                 this.y -= this.speedY;                
             }
-            if (this.y < this.player.y - offset && this.y < 460) {
+            if (this.y < this.player.y - chaseOffset && this.y < enemyMargin) {
                 this.y += this.speedY;                
             }
 
