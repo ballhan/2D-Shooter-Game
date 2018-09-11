@@ -12,7 +12,7 @@ var myGameArea = {
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         this.interval = setInterval(updateGameArea, 10);
         myPlayer = new player();
-        myEnemy = new enemy();
+        myEnemy = new enemy(myPlayer);
         window.addEventListener('keydown', function (e) {
             myGameArea.keys = (myGameArea.keys || []);
             myGameArea.keys[e.keyCode] = (e.type == "keydown");
@@ -95,7 +95,7 @@ function player() {
     }
 }
 
-function enemy() {
+function enemy(player) {
     this.player = player;
     this.width = 40;
     this.height = 40;
@@ -139,16 +139,16 @@ function enemy() {
             this.speedX = 0.3;
             this.speedY = 0.3;
             offset = 5;
-            if (this.x < myPlayer.x - offset && this.x < 460) {
+            if (this.x < this.player.x - offset && this.x < 460) {
                 this.x += this.speedX;
             }
-            if (this.x > myPlayer.x - offset && this.x > 0) {
+            if (this.x > this.player.x - offset && this.x > 0) {
                 this.x -= this.speedX;                
             }
-            if (this.y > myPlayer.y - offset && this.y > 0) {
+            if (this.y > this.player.y - offset && this.y > 0) {
                 this.y -= this.speedY;                
             }
-            if (this.y < myPlayer.y - offset && this.y < 460) {
+            if (this.y < this.player.y - offset && this.y < 460) {
                 this.y += this.speedY;                
             }
 
