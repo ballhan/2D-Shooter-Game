@@ -1,18 +1,24 @@
-function startGame(level) {
-    this.level = level;
-    myGameArea.start();
+var myPlayer;
+var myEnemy = [];
+
+function startGame() {
+    level = 1;
+    myGameArea.start(level);
 }
 
 var myGameArea = {
     canvas : document.createElement("canvas"),
-    start : function() {
+    start : function(level) {
+        this.level = level;
         this.canvas.width = 500;
         this.canvas.height = 500;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         this.interval = setInterval(updateGameArea, 10);
         myPlayer = new player();
-        myEnemy = new enemy(myPlayer);
+        for (i = 0; i < level; i ++) {
+            myEnemy.push(new enemy(myPlayer));
+        }
         window.addEventListener('keydown', function (e) {
             myGameArea.keys = (myGameArea.keys || []);
             myGameArea.keys[e.keyCode] = (e.type == "keydown");
@@ -182,15 +188,12 @@ function enemy(player) {
             if (this.y < this.player.y - chaseOffset && this.y < enemyMargin) {
                 this.y += this.speedY;                
             }
-
         }
-
     }
     this.drawEnemy = function() {
         ctx = myGameArea.context;
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.width, this.height);
-
     }
     this.update = function() {
         this.move();
@@ -198,8 +201,14 @@ function enemy(player) {
     }
 }
 
+function enemyUpdate(enemyArray) {
+    for (i = 0; i < enemyArray.length; i++) {
+        enemyArray[i].update();
+    }
+}
+
 function updateGameArea() {
     myGameArea.clear();  
     myPlayer.update();
-    myEnemy.update();  
+    enemyUpdate(myEnemy);  
 }
