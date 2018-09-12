@@ -111,7 +111,7 @@ function player() {
     }
 }
 
-function playerBullet(player) { 
+function playerBullet(player, enemyArray, bulletArray) { 
     this.bulletWidth = 10;
     this.bulletHeight = 10;
     this.bulletSpeed = 5;
@@ -120,6 +120,8 @@ function playerBullet(player) {
     this.y = player.y;    
     this.direction = player.direction;
     this.shoot = player.shoot;
+    this.enemyArray = enemyArray;
+    this.bulletArray = bulletArray;
     //draw bullet 
     this.drawBullet = function() {
         bulletOffset = 10;
@@ -155,9 +157,28 @@ function playerBullet(player) {
         }     
 
     }
+    this.checkWin = function() {
+        //silentmatt.com/intersection.html 
+        for (var i = 0; i < this.bulletArray.length; i++) {
+            for (var i = 0; i < this.enemyArray.length; i++) {
+                enemyX1 = enemyArray[i].x;
+                enemyX2 = enemyArray[i].x + enemyArray[i].bodyWidth;
+                enemyY1 = enemyArray[i].y;
+                enemyY2 = enemyArray[i].y + enemyArray[i].bodyHeight;
+                bulletX1 = bulletArray[i].x;
+                bulletX2 = bulletArray[i].x + bulletArray[i].bodyWidth;
+                bulletY1 = bulletArray[i].y;
+                bulletY2 = bulletArray[i].y + bulletArray[i].bodyHeight;
+                if (enemyX1 < bulletX2 && enemyX2 > bulletX1 && enemyY1 < bulletY2 && enemyY2 > bulletY1) {
+                    enemyArray[i].bodyColor = "#000000";
+                }
+            }
+        }
+    }
     this.update = function() {
         this.drawBullet();
         this.move();
+        this.checkWin();
     }
 }
 
