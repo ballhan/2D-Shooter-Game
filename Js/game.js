@@ -1,4 +1,5 @@
 var myPlayer;
+var myBullet = [];
 var myEnemy = [];
 
 function startGame() {
@@ -37,16 +38,12 @@ function player() {
     this.bodyHeight = 30;
     this.gunWidth = 30;
     this.gunHeight = 8;
-    this.bulletWidth = 10;
-    this.bulletHeight = 10;
     this.bodyColor = "#A9A9A9";
     this.gunColor = "#000000";
-    this.bulletColor = "#FFD700";
     this.x = 235;
     this.y = 400;    
     this.speedX = 0;
     this.speedY = 0;    
-    this.bulletSpeed = 5;
     this.direction = "up";
     this.shoot = false;
     //keyboard control
@@ -70,34 +67,17 @@ function player() {
         }
         if (myGameArea.keys && myGameArea.keys[32]) {
             this.shoot = true;
+            console.log("shoot = ",this.shoot);
         }
         this.x += this.speedX;
         this.y += this.speedY;  
         this.speedX = 0;
         this.speedY = 0; 
     }
-    //draw bullet 
-    this.drawBullet = function() {
-        bulletOffset = 10;
-        ctx = myGameArea.context;
-        ctx.fillStyle = this.bulletColor;
-        if (this.direction == "up") {
-            ctx.fillRect(this.x + bulletOffset, this.y - bulletOffset, this.bulletWidth, this.bulletHeight);
-        }
-        if (this.direction == "down") {
-            ctx.fillRect(this.x + bulletOffset, this.y + this.bodyHeight, this.bulletWidth, this.bulletHeight);
-        }
-        if (this.direction == "left") {
-            ctx.fillRect(this.x - this.bulletHeight, this.y + bulletOffset, this.bulletHeight, this.bulletWidth);
-        }   
-        if (this.direction == "right") {
-            ctx.fillRect(this.x + this.bodyWidth, this.y + bulletOffset, this.bulletHeight, this.bulletWidth);
-        }
-        this.shoot = false;           
-    }  
     this.shootBullet = function(){
         if (this.shoot == true) {
-            this.drawBullet();
+            myBullet.push(new playerBullet(myPlayer));
+            this.shoot = false;
         }
     }
     //draw gun according to movement
@@ -128,6 +108,56 @@ function player() {
         this.control();
         this.shootBullet();
         this.drawPlayer();
+    }
+}
+
+function playerBullet(player) { 
+    this.bulletWidth = 10;
+    this.bulletHeight = 10;
+    this.bulletSpeed = 5;
+    this.bulletColor = "#FFD700";
+    this.x = player.x;
+    this.y = player.y;    
+    this.direction = player.direction;
+    this.shoot = player.shoot;
+    //draw bullet 
+    this.drawBullet = function() {
+        bulletOffset = 10;
+        ctx = myGameArea.context;
+        ctx.fillStyle = this.bulletColor;
+        if (this.direction == "up") {
+            ctx.fillRect(this.x + bulletOffset, this.y - bulletOffset, this.bulletWidth, this.bulletHeight);
+        }
+        if (this.direction == "down") {
+            ctx.fillRect(this.x + bulletOffset, this.y + this.bodyHeight, this.bulletWidth, this.bulletHeight);
+        }
+        if (this.direction == "left") {
+            ctx.fillRect(this.x - this.bulletHeight, this.y + bulletOffset, this.bulletHeight, this.bulletWidth);
+        }   
+        if (this.direction == "right") {
+            ctx.fillRect(this.x + this.bodyWidth, this.y + bulletOffset, this.bulletHeight, this.bulletWidth);
+        }      
+    }  
+    this.move = function() {
+        bulletLowMargin = -5;
+        bulletHighMargin = 505;
+        if (this.direction == "up" && this.y > bulletLowMargin) {
+            this.y -= this.bulletSpeed;   
+        }
+        if (this.direction == "down" && this.y < bulletHighMargin) {
+            this.y += this.bulletSpeed;
+        }
+        if (this.direction == "left" && this.x > bulletLowMargin) {
+            this.x -= this.bulletSpeed;
+        }   
+        if (this.direction == "right" && this.x < bulletHighMargin) {
+            this.x += this.bulletSpeed;
+        }     
+
+    }
+    this.update = function() {
+        this.drawBullet();
+        this.move();
     }
 }
 
@@ -216,14 +246,22 @@ function enemy(player) {
     }
 }
 
-function enemyUpdate(enemyArray) {
+function enemyNumberUpdate(enemyArray) {
     for (i = 0; i < enemyArray.length; i++) {
         enemyArray[i].update();
     }
 }
 
+function myBulletUpdate(bulletArray) {
+    for (i = 0; i < bulletArray.length; i++) {
+        bulletArray[i].update();
+    }
+}
+
+
 function updateGameArea() {
     myGameArea.clear();  
     myPlayer.update();
-    enemyUpdate(myEnemy);  
+    enemyNumberUpdate(myEnemy);
+    myBulletUpdate(myBullet);
 }
