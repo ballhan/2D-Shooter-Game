@@ -133,9 +133,9 @@ function player() {
 
 function enemy(player) {
     this.player = player;
-    this.width = 40;
-    this.height = 40;
-    this.color = "#FF0000";
+    this.bodyWidth = 40;
+    this.bodyHeight = 40;
+    this.bodyColor = "#FF0000";
     this.speedX = 0.8;
     this.speedY = 0.8; 
     this.movement = Math.random();   
@@ -190,14 +190,29 @@ function enemy(player) {
             }
         }
     }
+    this.checkWin = function() {
+        //silentmatt.com/intersection.html 
+        enemyX1 = this.x;
+        enemyX2 = this.x + this.bodyWidth;
+        enemyY1 = this.y;
+        enemyY2 = this.y + this.bodyHeight;
+        playerX1 = this.player.x;
+        playerX2 = this.player.x + this.player.bodyWidth;
+        playerY1 = this.player.y;
+        playerY2 = this.player.y + this.player.bodyHeight;
+        if (enemyX1 < playerX2 && enemyX2 > playerX1 && enemyY1 < playerY2 && enemyY2 > playerY1) {
+            this.player.bodyColor = "#FF0000";
+        }
+    }
     this.drawEnemy = function() {
         ctx = myGameArea.context;
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.fillStyle = this.bodyColor;
+        ctx.fillRect(this.x, this.y, this.bodyWidth, this.bodyHeight);
     }
     this.update = function() {
         this.move();
         this.drawEnemy();
+        this.checkWin();
     }
 }
 
