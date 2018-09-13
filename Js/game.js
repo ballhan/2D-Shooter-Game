@@ -1,9 +1,9 @@
 var myPlayer;
 var myBullet = [];
 var myEnemy = [];
+var level = 1;
 
 function startGame() {
-    level = 6;
     myGameArea.start(level);
 }
 
@@ -20,6 +20,7 @@ var myGameArea = {
         for (i = 0; i < level; i ++) {
             myEnemy.push(new enemy(myPlayer));
         }
+        console.log(myEnemy);
         window.addEventListener('keydown', function (e) {
             myGameArea.keys = (myGameArea.keys || []);
             myGameArea.keys[e.keyCode] = (e.type == "keydown");
@@ -164,7 +165,7 @@ function playerBullet(player, enemyArray, bulletArray) {
         }     
 
     }
-    this.bulletDisappear = function() {
+    this.disappear = function() {
 
     };
     this.checkWin = function() {
@@ -199,9 +200,9 @@ function playerBullet(player, enemyArray, bulletArray) {
             enemyY1 = enemyArray[i].y;
             enemyY2 = enemyArray[i].y + enemyArray[i].bodyHeight;
             if (enemyX1 < bulletX2 && enemyX2 > bulletX1 && enemyY1 < bulletY2 && enemyY2 > bulletY1) {
-            	//this.bulletDisappear();
+            	//this.disappear();
                 enemyArray[i].bodyColor = "#000000";
-                //enemyArray[i].die();
+                enemyArray.splice(i, 1);
             }
         }
     }
@@ -290,9 +291,6 @@ function enemy(player) {
         ctx.fillStyle = this.bodyColor;
         ctx.fillRect(this.x, this.y, this.bodyWidth, this.bodyHeight);
     }
-    this.die = function() {
-
-    }
     this.update = function() {
         this.move();
         this.drawEnemy();
@@ -312,10 +310,17 @@ function myBulletUpdate(bulletArray) {
     }
 }
 
+function nextLevel(enemyArray) {
+	if (enemyArray.length < 1) {
+		level ++;
+		startGame(level);
+	}
+}
 
 function updateGameArea() {
     myGameArea.clear();  
     myPlayer.update();
     enemyNumberUpdate(myEnemy);
     myBulletUpdate(myBullet);
+    nextLevel(myEnemy);
 }
