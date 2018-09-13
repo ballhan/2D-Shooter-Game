@@ -3,7 +3,7 @@ var myBullet = [];
 var myEnemy = [];
 
 function startGame() {
-    level = 1;
+    level = 6;
     myGameArea.start(level);
 }
 
@@ -15,7 +15,7 @@ var myGameArea = {
         this.canvas.height = 500;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-        this.interval = setInterval(updateGameArea, 10);
+        this.interval = setInterval(updateGameArea, 15);
         myPlayer = new player();
         for (i = 0; i < level; i ++) {
             myEnemy.push(new enemy(myPlayer));
@@ -46,6 +46,8 @@ function player() {
     this.speedY = 0;    
     this.direction = "up";
     this.shoot = false;
+    this.lastShootTime = 0,
+    this.shootRate = 500,
     //keyboard control
     this.control = function() {
         playerMargin = 470;
@@ -74,9 +76,14 @@ function player() {
         this.speedY = 0; 
     }
     this.shootBullet = function(){
+    	var now = Date.now() ;
         if (this.shoot == true) {
-            myBullet.push(new playerBullet(myPlayer, myEnemy, myBullet));
-            this.shoot = false;
+        	if (now - this.lastShootTime  < this.shootRate) {
+        		return;
+        	} 
+        myBullet.push(new playerBullet(myPlayer, myEnemy, myBullet));
+        this.lastShootTime = now;
+        this.shoot = false;
         }
     }
     //draw gun according to movement
@@ -157,28 +164,51 @@ function playerBullet(player, enemyArray, bulletArray) {
         }     
 
     }
+    this.bulletDisappear = function() {
+
+    };
     this.checkWin = function() {
-        //silentmatt.com/intersection.html 
-        for (var i = 0; i < this.bulletArray.length; i++) {
-            for (var i = 0; i < this.enemyArray.length; i++) {
-                enemyX1 = enemyArray[i].x;
-                enemyX2 = enemyArray[i].x + enemyArray[i].bodyWidth;
-                enemyY1 = enemyArray[i].y;
-                enemyY2 = enemyArray[i].y + enemyArray[i].bodyHeight;
-                bulletX1 = bulletArray[i].x;
-                bulletX2 = bulletArray[i].x + bulletArray[i].bodyWidth;
-                bulletY1 = bulletArray[i].y;
-                bulletY2 = bulletArray[i].y + bulletArray[i].bodyHeight;
-                if (enemyX1 < bulletX2 && enemyX2 > bulletX1 && enemyY1 < bulletY2 && enemyY2 > bulletY1) {
-                    enemyArray[i].bodyColor = "#000000";
-                }
+    	bulletOffset = 10;
+        if (this.direction == "up") {
+            bulletX1 = this.x + bulletOffset;
+            bulletX2 = this.x + bulletOffset + this.bulletWidth;
+            bulletY1 = this.y - bulletOffset;
+            bulletY2 = this.y - bulletOffset + this.bulletHeight;
+        }
+        if (this.direction == "down") {
+            bulletX1 = this.x + bulletOffset;
+            bulletX2 = this.x + bulletOffset + this.bulletWidth;
+            bulletY1 = this.y + this.playerHeight;
+            bulletY2 = this.y + bulletOffset + this.bulletHeight;
+        }
+        if (this.direction == "left") {
+            bulletX1 = this.x - this.bulletHeight;
+            bulletX2 = this.x - this.bulletHeight + this.bulletWidth;
+            bulletY1 = this.y + bulletOffset;
+            bulletY2 = this.y + bulletOffset + this.bulletHeight;
+        }     
+        if (this.direction == "right") {
+            bulletX1 = this.x + this.playerWidth;
+            bulletX2 = this.x + this.playerWidth + this.bulletWidth;
+            bulletY1 = this.y + bulletOffset;
+            bulletY2 = this.y + bulletOffset + this.bulletHeight;
+        }   
+        for (var i = 0; i < this.enemyArray.length; i++) {
+            enemyX1 = enemyArray[i].x;
+            enemyX2 = enemyArray[i].x + enemyArray[i].bodyWidth;
+            enemyY1 = enemyArray[i].y;
+            enemyY2 = enemyArray[i].y + enemyArray[i].bodyHeight;
+            if (enemyX1 < bulletX2 && enemyX2 > bulletX1 && enemyY1 < bulletY2 && enemyY2 > bulletY1) {
+            	//this.bulletDisappear();
+                enemyArray[i].bodyColor = "#000000";
+                //enemyArray[i].die();
             }
         }
     }
     this.update = function() {
         this.drawBullet();
         this.move();
-        //this.checkWin();
+        this.checkWin();
     }
 }
 
@@ -259,6 +289,9 @@ function enemy(player) {
         ctx = myGameArea.context;
         ctx.fillStyle = this.bodyColor;
         ctx.fillRect(this.x, this.y, this.bodyWidth, this.bodyHeight);
+    }
+    this.die = function() {
+
     }
     this.update = function() {
         this.move();
