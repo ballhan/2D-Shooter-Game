@@ -1,19 +1,38 @@
+//global varible
 var myPlayer;
 var myBullet = [];
 var myEnemy = [];
 var level = 1;
 var bulletCount = 0;
+const canvasWidth = 500;
+const canvasHeight = 500;
+const playerBodyWidth = 30;
+const playerBodyHeight = 30;
+const playerBodyColor = "#A9A9A9";
+const playerGunWidth = 30;
+const playerGunHeight = 8;
+const playerGunColor = "#000000";
+const playerSpawnX = 235;
+const playerSpawnY = 400;
+const enemyBodyWidth = 40;
+const enemyBodyHeight = 40;
+const enemyBodyColor = "#FF0000";
+const enemySpeedX = 0.8;
+const enemySpeedY = 0.8; 
+const bulletWidth = 10;
+const bulletHeight = 10;
+const bulletSpeed = 5;
+const bulletColor = "#FFD700";
 
 function startGame() {
-    myGameArea.start(level);
+    myGameArea.start();
 }
 
 var myGameArea = {
     canvas : document.createElement("canvas"),
-    start : function(level) {
-        this.level = level;
-        this.canvas.width = 500;
-        this.canvas.height = 500;
+    start : function() {
+        this.canvas.width = canvasWidth;
+        this.canvas.height = canvasHeight;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         this.interval = setInterval(updateGameArea, 15);
@@ -34,23 +53,25 @@ var myGameArea = {
     }
 }
 
+//player object, player can move and control shoot
 function player() { 
-    this.bodyWidth = 30;
-    this.bodyHeight = 30;
-    this.gunWidth = 30;
-    this.gunHeight = 8;
-    this.bodyColor = "#A9A9A9";
-    this.gunColor = "#000000";
-    this.x = 235;
-    this.y = 400;    
+    this.bodyWidth = playerBodyWidth;
+    this.bodyHeight = playerBodyHeight;
+    this.gunWidth = playerGunWidth;
+    this.gunHeight = playerGunHeight;
+    this.bodyColor = playerBodyColor;
+    this.gunColor = playerGunColor;
+    this.x = playerSpawnX;
+    this.y = playerSpawnY;    
     this.speedX = 0;
     this.speedY = 0;    
     this.direction = "up";
     this.shoot = false;
-    this.lastShootTime = 0,
-    this.shootRate = 300,
+    //limited bullet shoot rate
+    this.lastShootTime = 0;
+    this.shootRate = 300;
     //keyboard control
-    this.control = function() {
+    this.move = function() {
         playerMargin = 470;
         if (myGameArea.keys && myGameArea.keys[37] && myPlayer.x > 0) {
             this.speedX = -1;
@@ -76,22 +97,9 @@ function player() {
         this.speedX = 0;
         this.speedY = 0; 
     }
-    this.shootBullet = function(){
-    	var now = Date.now() ;
-        if (this.shoot == true) {
-        	if (now - this.lastShootTime  < this.shootRate) {
-        		return;
-        	} 
-        bulletCount ++;
-        myBullet.push(new playerBullet(myPlayer, myEnemy, myBullet, this.bulletCount));
-        //console.log(this.bulletCount, myBullet.length);
-        this.lastShootTime = now;
-        this.shoot = false;
-        }
-    }
     //draw gun according to movement
     this.drawGun = function() {
-        ctx = myGameArea.context;
+    	ctx = myGameArea.context;      
         ctx.fillStyle = this.gunColor;
         if (this.direction == "up") {
             ctx.fillRect(this.x, this.y, this.gunWidth, this.gunHeight);
@@ -107,29 +115,49 @@ function player() {
         }           
     }
     //draw player with gun
-    this.drawPlayer = function() {     
-        ctx = myGameArea.context;
+    this.drawPlayer = function() { 
+    	ctx = myGameArea.context;    
         ctx.fillStyle = this.bodyColor;
         ctx.fillRect(this.x, this.y, this.bodyWidth, this.bodyHeight);
         this.drawGun();
     }
+    this.shootBullet = function(){
+    	var now = Date.now();
+        if (this.shoot == true) {
+        	this.shoot = false;
+        	//limited bullet shoot rate;
+        	if (now - this.lastShootTime  < this.shootRate) {
+        		return;
+        	} 
+        	this.lastShootTime = now;
+        	//add bullet object to bullet array
+        	myBullet.push(new playerBullet(myPlayer, myEnemy, myBullet, this.bulletCount));
+        	//increase bulletCount to track array index
+        	bulletCount ++;
+        	//console.log(this.bulletCount, myBullet.length);
+        }
+    }
     this.update = function() {
-        this.control();
-        this.shootBullet();
+        this.move();
         this.drawPlayer();
+        this.shootBullet();
     }
 }
 
+//create playerBullet, playerBullet can move, hit and clear
 function playerBullet(player, enemyArray, bulletArray, bulletCount) { 
-    this.bulletWidth = 10;
-    this.bulletHeight = 10;
-    this.bulletSpeed = 5;
-    this.bulletColor = "#FFD700";
+    this.bulletWidth = bulletWidth;
+    this.bulletHeight = bulletHeight;
+    this.bulletSpeed = bulletSpeed;
+    this.bulletColor = bulletColor;
+    //for draw purpose
+    this.player = player;
     this.x = player.x;
     this.y = player.y;    
     this.direction = player.direction;
     this.playerWidth = player.bodyWidth;
     this.playerHeight = player.bodyHeight;
+    //for checking hit and clear purpose
     this.enemyArray = enemyArray;
     this.bulletArray = bulletArray;
     this.bulletCount = bulletCount;
@@ -151,7 +179,7 @@ function playerBullet(player, enemyArray, bulletArray, bulletCount) {
             ctx.fillRect(this.x + this.playerWidth, this.y + bulletOffset, this.bulletHeight, this.bulletWidth);
         }      
     }  
-    this.move = function() {
+    this.bulletMove = function() {
         bulletLowMargin = -5;
         bulletHighMargin = 505;
         if (this.direction == "up" && this.y > bulletLowMargin) {
@@ -167,7 +195,8 @@ function playerBullet(player, enemyArray, bulletArray, bulletCount) {
             this.x += this.bulletSpeed;
         }
     }
-    this.checkWin = function() {
+    this.checkHitAndClear = function() {
+    	//for getting bullet coord
     	bulletOffset = 10;
     	highBoundryX = 500;
     	highBoundryY = 500;
@@ -203,6 +232,7 @@ function playerBullet(player, enemyArray, bulletArray, bulletCount) {
         	bulletCount --;
         	//console.log(myBullet.length);
         }  
+        //check hit
         for (var i = 0; i < this.enemyArray.length; i++) {
             enemyX1 = enemyArray[i].x;
             enemyX2 = enemyArray[i].x + enemyArray[i].bodyWidth;
@@ -220,18 +250,19 @@ function playerBullet(player, enemyArray, bulletArray, bulletCount) {
     }
     this.update = function() {
         this.drawBullet();
-        this.move();
-        this.checkWin();
+        this.bulletMove();
+        this.checkHitAndClear();
     }
 }
 
+//create enemy object, enemy can move, hit
 function enemy(player) {
     this.player = player;
-    this.bodyWidth = 40;
-    this.bodyHeight = 40;
-    this.bodyColor = "#FF0000";
-    this.speedX = 0.8;
-    this.speedY = 0.8; 
+    this.bodyWidth = enemyBodyWidth;
+    this.bodyHeight = enemyBodyHeight;
+    this.bodyColor = enemyBodyColor;
+    this.speedX = enemySpeedX;
+    this.speedY = enemySpeedY; 
     this.movement = Math.random();   
     //random spawn location
     this.x = Math.random() * 250;
@@ -284,6 +315,11 @@ function enemy(player) {
             }
         }
     }
+    this.drawEnemy = function() {
+    	ctx = myGameArea.context;
+        ctx.fillStyle = this.bodyColor;
+        ctx.fillRect(this.x, this.y, this.bodyWidth, this.bodyHeight);
+    }
     this.checkWin = function() {
         //silentmatt.com/intersection.html 
         enemyX1 = this.x;
@@ -298,11 +334,6 @@ function enemy(player) {
             this.player.bodyColor = "#FF0000";
         }
     }
-    this.drawEnemy = function() {
-        ctx = myGameArea.context;
-        ctx.fillStyle = this.bodyColor;
-        ctx.fillRect(this.x, this.y, this.bodyWidth, this.bodyHeight);
-    }
     this.update = function() {
         this.move();
         this.drawEnemy();
@@ -310,7 +341,7 @@ function enemy(player) {
     }
 }
 
-function enemyNumberUpdate(enemyArray) {
+function myEnemyUpdate(enemyArray) {
     for (i = 0; i < enemyArray.length; i++) {
         enemyArray[i].update();
     }
@@ -332,7 +363,7 @@ function nextLevel(enemyArray) {
 function updateGameArea() {
     myGameArea.clear();  
     myPlayer.update();
-    enemyNumberUpdate(myEnemy);
+    myEnemyUpdate(myEnemy);
     myBulletUpdate(myBullet);
     nextLevel(myEnemy);
 }
