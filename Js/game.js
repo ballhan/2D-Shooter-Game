@@ -67,7 +67,6 @@ function player() {
         }
         if (myGameArea.keys && myGameArea.keys[32]) {
             this.shoot = true;
-            console.log("shoot = ",this.shoot);
         }
         this.x += this.speedX;
         this.y += this.speedY;  
@@ -76,7 +75,7 @@ function player() {
     }
     this.shootBullet = function(){
         if (this.shoot == true) {
-            myBullet.push(new playerBullet(myPlayer));
+            myBullet.push(new playerBullet(myPlayer, myEnemy, myBullet));
             this.shoot = false;
         }
     }
@@ -119,7 +118,8 @@ function playerBullet(player, enemyArray, bulletArray) {
     this.x = player.x;
     this.y = player.y;    
     this.direction = player.direction;
-    this.shoot = player.shoot;
+    this.playerWidth = player.bodyWidth;
+    this.playerHeight = player.bodyHeight;
     this.enemyArray = enemyArray;
     this.bulletArray = bulletArray;
     //draw bullet 
@@ -131,13 +131,13 @@ function playerBullet(player, enemyArray, bulletArray) {
             ctx.fillRect(this.x + bulletOffset, this.y - bulletOffset, this.bulletWidth, this.bulletHeight);
         }
         if (this.direction == "down") {
-            ctx.fillRect(this.x + bulletOffset, this.y + 30, this.bulletWidth, this.bulletHeight);
+            ctx.fillRect(this.x + bulletOffset, this.y + this.playerHeight, this.bulletWidth, this.bulletHeight);
         }
         if (this.direction == "left") {
             ctx.fillRect(this.x - this.bulletHeight, this.y + bulletOffset, this.bulletHeight, this.bulletWidth);
         }   
         if (this.direction == "right") {
-            ctx.fillRect(this.x + 30, this.y + bulletOffset, this.bulletHeight, this.bulletWidth);
+            ctx.fillRect(this.x + this.playerWidth, this.y + bulletOffset, this.bulletHeight, this.bulletWidth);
         }      
     }  
     this.move = function() {
