@@ -131,13 +131,13 @@ function playerBullet(player, enemyArray, bulletArray) {
             ctx.fillRect(this.x + bulletOffset, this.y - bulletOffset, this.bulletWidth, this.bulletHeight);
         }
         if (this.direction == "down") {
-            ctx.fillRect(this.x + bulletOffset, this.y + this.bodyHeight, this.bulletWidth, this.bulletHeight);
+            ctx.fillRect(this.x + bulletOffset, this.y + 30, this.bulletWidth, this.bulletHeight);
         }
         if (this.direction == "left") {
             ctx.fillRect(this.x - this.bulletHeight, this.y + bulletOffset, this.bulletHeight, this.bulletWidth);
         }   
         if (this.direction == "right") {
-            ctx.fillRect(this.x + this.bodyWidth, this.y + bulletOffset, this.bulletHeight, this.bulletWidth);
+            ctx.fillRect(this.x + 30, this.y + bulletOffset, this.bulletHeight, this.bulletWidth);
         }      
     }  
     this.move = function() {
@@ -178,7 +178,7 @@ function playerBullet(player, enemyArray, bulletArray) {
     this.update = function() {
         this.drawBullet();
         this.move();
-        this.checkWin();
+        //this.checkWin();
     }
 }
 
