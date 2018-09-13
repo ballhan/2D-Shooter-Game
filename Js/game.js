@@ -2,6 +2,7 @@ var myPlayer;
 var myBullet = [];
 var myEnemy = [];
 var level = 1;
+var bulletCount = 0;
 
 function startGame() {
     myGameArea.start(level);
@@ -20,7 +21,6 @@ var myGameArea = {
         for (i = 0; i < level; i ++) {
             myEnemy.push(new enemy(myPlayer));
         }
-        console.log(myEnemy);
         window.addEventListener('keydown', function (e) {
             myGameArea.keys = (myGameArea.keys || []);
             myGameArea.keys[e.keyCode] = (e.type == "keydown");
@@ -48,7 +48,7 @@ function player() {
     this.direction = "up";
     this.shoot = false;
     this.lastShootTime = 0,
-    this.shootRate = 500,
+    this.shootRate = 300,
     //keyboard control
     this.control = function() {
         playerMargin = 470;
@@ -82,7 +82,9 @@ function player() {
         	if (now - this.lastShootTime  < this.shootRate) {
         		return;
         	} 
-        myBullet.push(new playerBullet(myPlayer, myEnemy, myBullet));
+        bulletCount ++;
+        myBullet.push(new playerBullet(myPlayer, myEnemy, myBullet, this.bulletCount));
+        //console.log(this.bulletCount, myBullet.length);
         this.lastShootTime = now;
         this.shoot = false;
         }
@@ -118,7 +120,7 @@ function player() {
     }
 }
 
-function playerBullet(player, enemyArray, bulletArray) { 
+function playerBullet(player, enemyArray, bulletArray, bulletCount) { 
     this.bulletWidth = 10;
     this.bulletHeight = 10;
     this.bulletSpeed = 5;
@@ -130,6 +132,7 @@ function playerBullet(player, enemyArray, bulletArray) {
     this.playerHeight = player.bodyHeight;
     this.enemyArray = enemyArray;
     this.bulletArray = bulletArray;
+    this.bulletCount = bulletCount;
     //draw bullet 
     this.drawBullet = function() {
         bulletOffset = 10;
@@ -162,14 +165,14 @@ function playerBullet(player, enemyArray, bulletArray) {
         }   
         if (this.direction == "right" && this.x < bulletHighMargin) {
             this.x += this.bulletSpeed;
-        }     
-
+        }
     }
-    this.disappear = function() {
-
-    };
     this.checkWin = function() {
     	bulletOffset = 10;
+    	highBoundryX = 500;
+    	highBoundryY = 500;
+    	lowBoundryX = 0;
+    	lowBoundryY = 0;
         if (this.direction == "up") {
             bulletX1 = this.x + bulletOffset;
             bulletX2 = this.x + bulletOffset + this.bulletWidth;
@@ -193,15 +196,24 @@ function playerBullet(player, enemyArray, bulletArray) {
             bulletX2 = this.x + this.playerWidth + this.bulletWidth;
             bulletY1 = this.y + bulletOffset;
             bulletY2 = this.y + bulletOffset + this.bulletHeight;
-        }   
+        }
+        //remove out of bounce bullet from bullet array
+        if (bulletX1 > highBoundryX || bulletY1 > highBoundryY || bulletX2 < lowBoundryX || bulletY2 < lowBoundryY) {
+        	this.bulletArray.splice(bulletCount - 1, 1);
+        	bulletCount --;
+        	//console.log(myBullet.length);
+        }  
         for (var i = 0; i < this.enemyArray.length; i++) {
             enemyX1 = enemyArray[i].x;
             enemyX2 = enemyArray[i].x + enemyArray[i].bodyWidth;
             enemyY1 = enemyArray[i].y;
             enemyY2 = enemyArray[i].y + enemyArray[i].bodyHeight;
             if (enemyX1 < bulletX2 && enemyX2 > bulletX1 && enemyY1 < bulletY2 && enemyY2 > bulletY1) {
-            	//this.disappear();
                 enemyArray[i].bodyColor = "#000000";
+                //remove bullet from bullet array
+                this.bulletArray.splice(bulletCount - 1, 1);
+                bulletCount--;
+                //remove enemy from enemy array
                 enemyArray.splice(i, 1);
             }
         }
