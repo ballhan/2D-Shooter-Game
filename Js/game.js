@@ -271,21 +271,21 @@ function enemy(player) {
     this.move = function() {
         enemyMargin = 460;
         //only move on x
-        if (this.movement < 0.2) {
+        if (this.movement < 0.15) {
             this.x += this.speedX;
             if (this.x > enemyMargin || this.x < 0) {
             this.speedX = -this.speedX;
             }
         }
         //only move on y
-        if (this.movement >= 0.2 && this.movement < 0.4) {
+        if (this.movement >= 0.15 && this.movement < 0.3) {
             this.y += this.speedY;      
             if (this.y > enemyMargin || this.y < 0) {
                 this.speedY = -this.speedY;
             }  
         }
         //move on x and y
-        if (this.movement >= 0.4 && this.movement < 0.5) {
+        if (this.movement >= 0.3 && this.movement < 0.45) {
             this.x += this.speedX;
             if (this.x > enemyMargin || this.x < 0) {
             this.speedX = -this.speedX;
@@ -296,7 +296,7 @@ function enemy(player) {
             }  
         }
         //follow player
-        if (this.movement >= 0.5) {
+        if (this.movement >= 0.45) {
             //lower speed
             this.speedX = 0.5;
             this.speedY = 0.5;
