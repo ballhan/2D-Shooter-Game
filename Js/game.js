@@ -2,6 +2,8 @@
 var myPlayer;
 var myBullet = [];
 var myEnemy = [];
+var enemySpeedX = 0.8;
+var enemySpeedY = 0.8; 
 var level = 1;
 var bulletCount = 0;
 const canvasWidth = 500;
@@ -17,8 +19,6 @@ const playerSpawnY = 400;
 const enemyBodyWidth = 40;
 const enemyBodyHeight = 40;
 const enemyBodyColor = "#FF0000";
-const enemySpeedX = 0.8;
-const enemySpeedY = 0.8; 
 const bulletWidth = 10;
 const bulletHeight = 10;
 const bulletSpeed = 5;
@@ -285,7 +285,7 @@ function enemy(player) {
             }  
         }
         //move on x and y
-        if (this.movement >= 0.4 && this.movement < 0.6) {
+        if (this.movement >= 0.4 && this.movement < 0.5) {
             this.x += this.speedX;
             if (this.x > enemyMargin || this.x < 0) {
             this.speedX = -this.speedX;
@@ -296,10 +296,10 @@ function enemy(player) {
             }  
         }
         //follow player
-        if (this.movement >= 0.6) {
+        if (this.movement >= 0.5) {
             //lower speed
-            this.speedX = 0.3;
-            this.speedY = 0.3;
+            this.speedX = 0.5;
+            this.speedY = 0.5;
             chaseOffset = 5;
             if (this.x < this.player.x - chaseOffset && this.x < enemyMargin) {
                 this.x += this.speedX;
@@ -332,7 +332,6 @@ function enemy(player) {
         playerY2 = this.player.y + this.player.bodyHeight;
         if (enemyX1 < playerX2 && enemyX2 > playerX1 && enemyY1 < playerY2 && enemyY2 > playerY1) {
             this.player.bodyColor = "#FF0000";
-            level = 1;
             alert("GAME OVER");
             document.location.reload();
         }
@@ -359,7 +358,13 @@ function myBulletUpdate(bulletArray) {
 function nextLevel(enemyArray) {
 	if (enemyArray.length < 1) {	
         level ++;
-        startGame();
+        enemySpeedX += 0.1;
+        enemySpeedY += 0.1;
+        myGameArea.clear();  
+        myPlayer = new player();
+        for (i = 0; i < level; i ++) {
+            myEnemy.push(new enemy(myPlayer));
+        }
 	}
 }
 
