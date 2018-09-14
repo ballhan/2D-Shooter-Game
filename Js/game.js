@@ -35,7 +35,7 @@ var myGameArea = {
         this.canvas.height = canvasHeight;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-        this.interval = setInterval(updateGameArea, 15);
+        this.interval = setInterval(updateGameArea, 10);
         myPlayer = new player();
         for (i = 0; i < level; i ++) {
             myEnemy.push(new enemy(myPlayer));
@@ -332,6 +332,9 @@ function enemy(player) {
         playerY2 = this.player.y + this.player.bodyHeight;
         if (enemyX1 < playerX2 && enemyX2 > playerX1 && enemyY1 < playerY2 && enemyY2 > playerY1) {
             this.player.bodyColor = "#FF0000";
+            level = 1;
+            alert("GAME OVER");
+            document.location.reload();
         }
     }
     this.update = function() {
@@ -354,15 +357,22 @@ function myBulletUpdate(bulletArray) {
 }
 
 function nextLevel(enemyArray) {
-	if (enemyArray.length < 1) {
-		level ++;
-		startGame(level);
+	if (enemyArray.length < 1) {	
+        level ++;
+        startGame();
 	}
+}
+
+function drawScore() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#000000";
+    ctx.fillText("Level: " + level, 8, 20);
 }
 
 function updateGameArea() {
     myGameArea.clear();  
     myPlayer.update();
+    drawScore();
     myEnemyUpdate(myEnemy);
     myBulletUpdate(myBullet);
     nextLevel(myEnemy);
