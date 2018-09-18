@@ -332,8 +332,6 @@ function enemy(player) {
         playerY2 = this.player.y + this.player.bodyHeight;
         if (enemyX1 < playerX2 && enemyX2 > playerX1 && enemyY1 < playerY2 && enemyY2 > playerY1) {
             this.player.bodyColor = "#FF0000";
-            document.location.reload();
-            alert("GAME OVER");
         }
     }
     this.update = function() {
@@ -367,6 +365,12 @@ function nextLevel(enemyArray) {
         }
 	}
 }
+function checkLose(myPlayer) {
+    if (myPlayer.bodyColor == "#FF0000") {
+        alert("GAME OVER");
+        document.location.reload();
+    }
+}
 
 function drawScore() {
     ctx.font = "16px Arial";
@@ -380,5 +384,6 @@ function updateGameArea() {
     drawScore();
     myEnemyUpdate(myEnemy);
     myBulletUpdate(myBullet);
+    checkLose(myPlayer);
     nextLevel(myEnemy);
 }
