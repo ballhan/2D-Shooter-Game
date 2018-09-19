@@ -2,8 +2,6 @@
 var myPlayer;
 var myBullet = [];
 var myEnemy = [];
-var enemySpeedX = 0.8;
-var enemySpeedY = 0.8; 
 var level = 1;
 var bulletCount = 0;
 const canvasWidth = 500;
@@ -16,9 +14,6 @@ const playerGunHeight = 8;
 const playerGunColor = "#000000";
 const playerSpawnX = 235;
 const playerSpawnY = 400;
-const enemyBodyWidth = 40;
-const enemyBodyHeight = 40;
-const enemyBodyColor = "#FF0000";
 const bulletWidth = 10;
 const bulletHeight = 10;
 const bulletSpeed = 5;
@@ -144,7 +139,7 @@ function player() {
     }
 }
 
-//create playerBullet, playerBullet can move, hit and clear
+//create playerBullet, playerBullet can move, hit enemy and clear
 function playerBullet(player, enemyArray, bulletArray, bulletCount) { 
     this.bulletWidth = bulletWidth;
     this.bulletHeight = bulletHeight;
@@ -161,6 +156,10 @@ function playerBullet(player, enemyArray, bulletArray, bulletCount) {
     this.enemyArray = enemyArray;
     this.bulletArray = bulletArray;
     this.bulletCount = bulletCount;
+    this.bulletX1 = 0;
+    this.bulletX2 = 0;
+    this.bulletY1 = 0;
+    this.bulletY2 = 0;
     //draw bullet 
     this.drawBullet = function() {
         bulletOffset = 10;
@@ -203,48 +202,69 @@ function playerBullet(player, enemyArray, bulletArray, bulletCount) {
     	lowBoundryX = 0;
     	lowBoundryY = 0;
         if (this.direction == "up") {
-            bulletX1 = this.x + bulletOffset;
-            bulletX2 = this.x + bulletOffset + this.bulletWidth;
-            bulletY1 = this.y - bulletOffset;
-            bulletY2 = this.y - bulletOffset + this.bulletHeight;
+            this.bulletX1 = this.x + bulletOffset;
+            this.bulletX2 = this.x + bulletOffset + this.bulletWidth;
+            this.bulletY1 = this.y - bulletOffset;
+            this.bulletY2 = this.y - bulletOffset + this.bulletHeight;
         }
         if (this.direction == "down") {
-            bulletX1 = this.x + bulletOffset;
-            bulletX2 = this.x + bulletOffset + this.bulletWidth;
-            bulletY1 = this.y + this.playerHeight;
-            bulletY2 = this.y + bulletOffset + this.bulletHeight;
+            this.bulletX1 = this.x + bulletOffset;
+            this.bulletX2 = this.x + bulletOffset + this.bulletWidth;
+            this.bulletY1 = this.y + this.playerHeight;
+            this.bulletY2 = this.y + bulletOffset + this.bulletHeight;
         }
         if (this.direction == "left") {
-            bulletX1 = this.x - this.bulletHeight;
-            bulletX2 = this.x - this.bulletHeight + this.bulletWidth;
-            bulletY1 = this.y + bulletOffset;
-            bulletY2 = this.y + bulletOffset + this.bulletHeight;
+            this.bulletX1 = this.x - this.bulletHeight;
+            this.bulletX2 = this.x - this.bulletHeight + this.bulletWidth;
+            this.bulletY1 = this.y + bulletOffset;
+            this.bulletY2 = this.y + bulletOffset + this.bulletHeight;
         }     
         if (this.direction == "right") {
-            bulletX1 = this.x + this.playerWidth;
-            bulletX2 = this.x + this.playerWidth + this.bulletWidth;
-            bulletY1 = this.y + bulletOffset;
-            bulletY2 = this.y + bulletOffset + this.bulletHeight;
+            this.bulletX1 = this.x + this.playerWidth;
+            this.bulletX2 = this.x + this.playerWidth + this.bulletWidth;
+            this.bulletY1 = this.y + bulletOffset;
+            this.bulletY2 = this.y + bulletOffset + this.bulletHeight;
         }
         //remove out of bounce bullet from bullet array
-        if (bulletX1 > highBoundryX || bulletY1 > highBoundryY || bulletX2 < lowBoundryX || bulletY2 < lowBoundryY) {
+        if (this.bulletX1 > highBoundryX || this.bulletY1 > highBoundryY || this.bulletX2 < lowBoundryX || this.bulletY2 < lowBoundryY) {
         	this.bulletArray.splice(bulletCount - 1, 1);
         	bulletCount --;
         	//console.log(myBullet.length);
         }  
         //check hit
         for (var i = 0; i < this.enemyArray.length; i++) {
-            enemyX1 = enemyArray[i].x;
-            enemyX2 = enemyArray[i].x + enemyArray[i].bodyWidth;
-            enemyY1 = enemyArray[i].y;
-            enemyY2 = enemyArray[i].y + enemyArray[i].bodyHeight;
-            if (enemyX1 < bulletX2 && enemyX2 > bulletX1 && enemyY1 < bulletY2 && enemyY2 > bulletY1) {
-                enemyArray[i].bodyColor = "#000000";
+            enemy = enemyArray[i];
+            enemyX1 = enemy.x;
+            enemyX2 = enemy.x + enemy.bodyWidth;
+            enemyY1 = enemy.y;
+            enemyY2 = enemy.y + enemy.bodyHeight;
+            enemyType = enemy.enemyType;
+            if (enemyX1 < this.bulletX2 && enemyX2 > this.bulletX1 && enemyY1 < this.bulletY2 && enemyY2 > this.bulletY1) {
+                //for boss enemy
+                if (enemyType >= 0.8) {
+                    //remove bullet from bullet array
+                    this.bulletArray.splice(bulletCount - 1, 1);
+                    bulletCount--;
+                    //change shape
+                    enemy.enemyLife --;
+                    //check die
+                    if (enemy.enemyLife <= 2) {
+                        enemyArray.splice(i, 1);
+                    }
+                    return;
+                }
                 //remove bullet from bullet array
                 this.bulletArray.splice(bulletCount - 1, 1);
                 bulletCount--;
                 //remove enemy from enemy array
                 enemyArray.splice(i, 1);
+            }
+        }
+        //check if nextlevel
+        if (this.enemyArray.length < 1) {    
+            level ++;
+            for (i = 0; i < level; i ++) {
+                myEnemy.push(new enemy(myPlayer));
             }
         }
     }
@@ -255,70 +275,81 @@ function playerBullet(player, enemyArray, bulletArray, bulletCount) {
     }
 }
 
-//create enemy object, enemy can move, hit
+//create enemy object, enemy can move, win by hit player and restart the game
 function enemy(player) {
     this.player = player;
-    this.bodyWidth = enemyBodyWidth;
-    this.bodyHeight = enemyBodyHeight;
-    this.bodyColor = enemyBodyColor;
-    this.speedX = enemySpeedX;
-    this.speedY = enemySpeedY; 
-    this.movement = Math.random();   
+    this.enemyType;
+    this.bodyWidth;
+    this.bodyHeight;
+    this.bodyColor;
+    this.speedX = 1;
+    this.speedY = 1;
     //random spawn location
     this.x = Math.random() * 250;
     this.y = Math.random() * 200;
-    //4 types of move chosen by random    
-    this.move = function() {
-        enemyMargin = 460;
-        //only move on x
-        if (this.movement < 0.15) {
-            this.x += this.speedX;
-            if (this.x > enemyMargin || this.x < 0) {
-            this.speedX = -this.speedX;
-            }
-        }
-        //only move on y
-        if (this.movement >= 0.15 && this.movement < 0.3) {
-            this.y += this.speedY;      
-            if (this.y > enemyMargin || this.y < 0) {
-                this.speedY = -this.speedY;
-            }  
-        }
-        //move on x and y
-        if (this.movement >= 0.3 && this.movement < 0.45) {
-            this.x += this.speedX;
-            if (this.x > enemyMargin || this.x < 0) {
-            this.speedX = -this.speedX;
-            }
-            this.y += this.speedY;      
-            if (this.y > enemyMargin || this.y < 0) {
-                this.speedY = -this.speedY;
-            }  
-        }
-        //follow player
-        if (this.movement >= 0.45) {
-            //lower speed
-            this.speedX = 0.5;
-            this.speedY = 0.5;
-            chaseOffset = 5;
-            if (this.x < this.player.x - chaseOffset && this.x < enemyMargin) {
-                this.x += this.speedX;
-            }
-            if (this.x > this.player.x - chaseOffset && this.x > 0) {
-                this.x -= this.speedX;                
-            }
-            if (this.y > this.player.y - chaseOffset && this.y > 0) {
-                this.y -= this.speedY;                
-            }
-            if (this.y < this.player.y - chaseOffset && this.y < enemyMargin) {
-                this.y += this.speedY;                
-            }
-        }
-    }
+    //for boss
+    this.enemyLife = 6;
+    this.enemyType = Math.random();
     this.drawEnemy = function() {
+        if (this.enemyType < 0.25) {
+            this.bodyWidth = 40;
+            this.bodyHeight = 40;
+            this.bodyColor = "#FFB2B2";
+        }
+        if (this.enemyType >= 0.25 && this.enemyType < 0.5) {
+            this.bodyWidth = 40;
+            this.bodyHeight = 40;
+            this.bodyColor = "#FF4C4C";
+        }
+        if (this.enemyType >= 0.5 && this.enemyType < 0.8) {
+            this.bodyWidth = 30;
+            this.bodyHeight = 30;
+            this.bodyColor = "#FF0000";
+        }
+        if (this.enemyType >= 0.8) {
+            this.bodyWidth = this.enemyLife * 10;
+            this.bodyHeight = this.enemyLife * 10;
+            this.bodyColor = "#7F0000";
+        }
     	ctx = myGameArea.context;
         ctx.fillStyle = this.bodyColor;
         ctx.fillRect(this.x, this.y, this.bodyWidth, this.bodyHeight);
+    }
+    this.move = function() {
+        if (this.enemyType < 0.25) {
+            enemyMargin = canvasWidth - this.bodyWidth;
+            this.x += this.speedX;
+            if (this.x > enemyMargin || this.x < 0) {
+                this.speedX = -this.speedX;
+            }
+        }
+        if (this.enemyType >= 0.25 && this.enemyType < 0.5) {
+            enemyMargin = canvasHeight - this.bodyHeight;
+            this.y += this.speedY;      
+            if (this.y > enemyMargin || this.y < 0) {
+                this.speedY = -this.speedY;
+            }  
+        }
+        if (this.enemyType >= 0.5) {
+            this.speedX = 0.5;
+            this.speedY = 0.5;
+            enemyMarginX = canvasWidth - this.bodyWidth;
+            enemyMarginY = canvasHeight - this.bodyHeight;
+            chaseOffsetX = Math.abs(this.bodyWidth - this.player.bodyWidth) / 2;
+            chaseOffsetY = Math.abs(this.bodyHeight - this.player.bodyHeight) / 2;
+            if (this.x < this.player.x - chaseOffsetX && this.x < enemyMarginX) {
+                this.x += this.speedX;
+            }
+            if (this.x > this.player.x - chaseOffsetX && this.x > 0) {
+                this.x -= this.speedX;                
+            }
+            if (this.y > this.player.y - chaseOffsetY && this.y > 0) {
+                this.y -= this.speedY;                
+            }
+            if (this.y < this.player.y - chaseOffsetY && this.y < enemyMarginY) {
+                this.y += this.speedY;                
+            }
+        }
     }
     this.checkWin = function() {
         //silentmatt.com/intersection.html 
@@ -332,11 +363,12 @@ function enemy(player) {
         playerY2 = this.player.y + this.player.bodyHeight;
         if (enemyX1 < playerX2 && enemyX2 > playerX1 && enemyY1 < playerY2 && enemyY2 > playerY1) {
             this.player.bodyColor = "#FF0000";
+            document.location.reload();
         }
     }
     this.update = function() {
-        this.move();
         this.drawEnemy();
+        this.move();
         this.checkWin();
     }
 }
@@ -353,26 +385,8 @@ function myBulletUpdate(bulletArray) {
     }
 }
 
-function nextLevel(enemyArray) {
-	if (enemyArray.length < 1) {	
-        level ++;
-        enemySpeedX += 0.1;
-        enemySpeedY += 0.1;
-        myGameArea.clear();  
-        myPlayer = new player();
-        for (i = 0; i < level; i ++) {
-            myEnemy.push(new enemy(myPlayer));
-        }
-	}
-}
-function checkLose(myPlayer) {
-    if (myPlayer.bodyColor == "#FF0000") {
-        alert("GAME OVER");
-        document.location.reload();
-    }
-}
-
-function drawScore() {
+function drawLevel() {
+    ctx = myGameArea.context;
     ctx.font = "16px Arial";
     ctx.fillStyle = "#000000";
     ctx.fillText("Level: " + level, 8, 20);
@@ -380,10 +394,8 @@ function drawScore() {
 
 function updateGameArea() {
     myGameArea.clear();  
+    drawLevel();
     myPlayer.update();
-    drawScore();
     myEnemyUpdate(myEnemy);
     myBulletUpdate(myBullet);
-    checkLose(myPlayer);
-    nextLevel(myEnemy);
 }
