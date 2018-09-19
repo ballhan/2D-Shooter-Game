@@ -233,12 +233,11 @@ function playerBullet(player, enemyArray, bulletArray, bulletCount) {
         }  
         //check hit
         for (var i = 0; i < this.enemyArray.length; i++) {
-            enemy = enemyArray[i];
-            enemyX1 = enemy.x;
-            enemyX2 = enemy.x + enemy.bodyWidth;
-            enemyY1 = enemy.y;
-            enemyY2 = enemy.y + enemy.bodyHeight;
-            enemyType = enemy.enemyType;
+            enemyX1 = enemyArray[i].x;
+            enemyX2 = enemyArray[i].x + enemyArray[i].bodyWidth;
+            enemyY1 = enemyArray[i].y;
+            enemyY2 = enemyArray[i].y + enemyArray[i].bodyHeight;
+            enemyType = enemyArray[i].enemyType;
             if (enemyX1 < this.bulletX2 && enemyX2 > this.bulletX1 && enemyY1 < this.bulletY2 && enemyY2 > this.bulletY1) {
                 //for boss enemy
                 if (enemyType >= 0.8) {
@@ -246,9 +245,9 @@ function playerBullet(player, enemyArray, bulletArray, bulletCount) {
                     this.bulletArray.splice(bulletCount - 1, 1);
                     bulletCount--;
                     //change shape
-                    enemy.enemyLife --;
+                    enemyArray[i].enemyLife --;
                     //check die
-                    if (enemy.enemyLife <= 2) {
+                    if (enemyArray[i].enemyLife <= 2) {
                         enemyArray.splice(i, 1);
                     }
                     return;
