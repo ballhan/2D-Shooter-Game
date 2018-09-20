@@ -361,7 +361,6 @@ function enemy(player) {
         playerY1 = this.player.y;
         playerY2 = this.player.y + this.player.bodyHeight;
         if (enemyX1 < playerX2 && enemyX2 > playerX1 && enemyY1 < playerY2 && enemyY2 > playerY1) {
-            alert("GAME OVER");
             document.location.reload();
         }
     }
