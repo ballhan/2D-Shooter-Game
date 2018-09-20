@@ -16,7 +16,7 @@ const playerSpawnX = 235;
 const playerSpawnY = 400;
 const bulletWidth = 10;
 const bulletHeight = 10;
-const bulletSpeed = 5;
+const bulletSpeed = 8;
 const bulletColor = "#FFD700";
 
 function startGame() {
@@ -30,11 +30,11 @@ var myGameArea = {
         this.canvas.height = canvasHeight;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-        this.interval = setInterval(updateGameArea, 10);
         myPlayer = new player();
         for (i = 0; i < level; i ++) {
             myEnemy.push(new enemy(myPlayer));
         }
+        updateGameArea();
         window.addEventListener('keydown', function (e) {
             myGameArea.keys = (myGameArea.keys || []);
             myGameArea.keys[e.keyCode] = (e.type == "keydown");
@@ -64,24 +64,24 @@ function player() {
     this.shoot = false;
     //limited bullet shoot rate
     this.lastShootTime = 0;
-    this.shootRate = 300;
+    this.shootRate = 250;
     //keyboard control
     this.move = function() {
         playerMargin = 470;
         if (myGameArea.keys && myGameArea.keys[37] && myPlayer.x > 0) {
-            this.speedX = -1;
+            this.speedX = -1.5;
             this.direction = "left";
         }
         if (myGameArea.keys && myGameArea.keys[39] && myPlayer.x < playerMargin) {
-            this.speedX = 1; 
+            this.speedX = 1.5; 
             this.direction = "right";
         }
         if (myGameArea.keys && myGameArea.keys[38] && myPlayer.y > 0) {
-            this.speedY = -1; 
+            this.speedY = -1.5; 
             this.direction = "up";
         }
         if (myGameArea.keys && myGameArea.keys[40] && myPlayer.y < playerMargin) {
-            this.speedY = 1; 
+            this.speedY = 1.5; 
             this.direction = "down";
         }
         if (myGameArea.keys && myGameArea.keys[32]) {
@@ -396,4 +396,5 @@ function updateGameArea() {
     myPlayer.update();
     myEnemyUpdate(myEnemy);
     myBulletUpdate(myBullet);
+    requestAnimationFrame(updateGameArea);
 }
