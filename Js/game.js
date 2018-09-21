@@ -34,7 +34,6 @@ function startGame() {
 }
 
 var myGameArea = {
-    canvas : document.createElement("canvas"),
     start : function() {
         this.context = c;
         myPlayer = new player();
@@ -50,7 +49,7 @@ var myGameArea = {
             myGameArea.keys[e.keyCode] = (e.type == "keydown");            
         })
     }, 
-    clear : function(){
+    clear : function() {
         this.context.clearRect(0, 0, canvas.width, canvas.height);
     }
 }
