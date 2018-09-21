@@ -26,7 +26,7 @@ const playerSpawnX = (canvasWidth - playerBodyWidth)/2;
 const playerSpawnY = 0.9 * canvasHeight;
 const bulletWidth = 1/3 * playerBodyWidth;
 const bulletHeight = bulletWidth;
-const bulletSpeed = 8;
+const bulletSpeed = 8/500 * canvasWidth;
 const bulletColor = "#FFD700";
 
 function startGame() {
@@ -75,19 +75,19 @@ function player() {
     this.move = function() {
         playerMargin = canvasHeight - playerBodyHeight;
         if (myGameArea.keys && myGameArea.keys[37] && myPlayer.x > 0) {
-            this.speedX = -1.5;
+            this.speedX = -1.5 / 500 * canvasWidth;
             this.direction = "left";
         }
         if (myGameArea.keys && myGameArea.keys[39] && myPlayer.x < playerMargin) {
-            this.speedX = 1.5; 
+            this.speedX = 1.5 / 500 * canvasWidth; 
             this.direction = "right";
         }
         if (myGameArea.keys && myGameArea.keys[38] && myPlayer.y > 0) {
-            this.speedY = -1.5; 
+            this.speedY = -1.5 / 500 * canvasWidth; 
             this.direction = "up";
         }
         if (myGameArea.keys && myGameArea.keys[40] && myPlayer.y < playerMargin) {
-            this.speedY = 1.5; 
+            this.speedY = 1.5 / 500 * canvasWidth; 
             this.direction = "down";
         }
         if (myGameArea.keys && myGameArea.keys[32]) {
@@ -287,8 +287,8 @@ function enemy(player) {
     this.bodyWidth;
     this.bodyHeight;
     this.bodyColor;
-    this.speedX = 1;
-    this.speedY = 1;
+    this.speedX = 1 / 500 * canvasWidth;
+    this.speedY = this.speedX;
     //random spawn location
     this.x = Math.random() * canvasWidth / 2;
     this.y = Math.random() * 0.2 * canvasHeight;
@@ -336,8 +336,8 @@ function enemy(player) {
             }  
         }
         if (this.enemyType >= 0.5) {
-            this.speedX = 0.5;
-            this.speedY = 0.5;
+            this.speedX = 1 / 1000 * canvasWidth;
+            this.speedY = this.speedX;
             enemyMarginX = canvasWidth - this.bodyWidth;
             enemyMarginY = canvasHeight - this.bodyHeight;
             chaseOffsetX = Math.abs(this.bodyWidth - this.player.bodyWidth) / 2;
