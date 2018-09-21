@@ -1,21 +1,31 @@
 //global varible
+var canvas = document.querySelector('canvas');
+var c = canvas.getContext('2d');
+var canvasWidth;
+var canvasHeight;
+if (window.innerHeight > window.innerWidth) {
+    canvasWidth = canvas.width = 0.7 * window.innerWidth;
+    canvasHeight = canvas.height = canvasWidth;
+}
+else {
+    canvasHeight = canvas.height = 0.7 * window.innerHeight;
+    canvasWidth = canvas.width = canvasHeight;
+}
 var myPlayer;
 var myBullet = [];
 var myEnemy = [];
 var level = 1;
 var bulletCount = 0;
-const canvasWidth = 500;
-const canvasHeight = 500;
-const playerBodyWidth = 30;
-const playerBodyHeight = 30;
+const playerBodyWidth = 3/50 * canvasWidth;
+const playerBodyHeight = playerBodyWidth;
 const playerBodyColor = "#A9A9A9";
-const playerGunWidth = 30;
-const playerGunHeight = 8;
+const playerGunWidth = playerBodyWidth;
+const playerGunHeight = 1/3 * playerBodyWidth;
 const playerGunColor = "#000000";
-const playerSpawnX = 235;
-const playerSpawnY = 400;
-const bulletWidth = 10;
-const bulletHeight = 10;
+const playerSpawnX = (canvasWidth - playerBodyWidth)/2;
+const playerSpawnY = 0.9 * canvasHeight;
+const bulletWidth = 1/3 * playerBodyWidth;
+const bulletHeight = bulletWidth;
 const bulletSpeed = 8;
 const bulletColor = "#FFD700";
 
@@ -26,10 +36,7 @@ function startGame() {
 var myGameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
-        this.canvas.width = canvasWidth;
-        this.canvas.height = canvasHeight;
-        this.context = this.canvas.getContext("2d");
-        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        this.context = c;
         myPlayer = new player();
         for (i = 0; i < level; i ++) {
             myEnemy.push(new enemy(myPlayer));
@@ -44,7 +51,7 @@ var myGameArea = {
         })
     }, 
     clear : function(){
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.context.clearRect(0, 0, canvas.width, canvas.height);
     }
 }
 
@@ -67,7 +74,7 @@ function player() {
     this.shootRate = 250;
     //keyboard control
     this.move = function() {
-        playerMargin = 470;
+        playerMargin = canvasHeight - playerBodyHeight;
         if (myGameArea.keys && myGameArea.keys[37] && myPlayer.x > 0) {
             this.speedX = -1.5;
             this.direction = "left";
@@ -162,7 +169,7 @@ function playerBullet(player, enemyArray, bulletArray, bulletCount) {
     this.bulletY2 = 0;
     //draw bullet 
     this.drawBullet = function() {
-        bulletOffset = 10;
+        bulletOffset = (playerBodyWidth - bulletWidth) / 2;
         ctx = myGameArea.context;
         ctx.fillStyle = this.bulletColor;
         if (this.direction == "up") {
@@ -179,8 +186,8 @@ function playerBullet(player, enemyArray, bulletArray, bulletCount) {
         }      
     }  
     this.bulletMove = function() {
-        bulletLowMargin = -5;
-        bulletHighMargin = 505;
+        bulletLowMargin = - bulletWidth / 2;
+        bulletHighMargin = bulletWidth / 2 + canvasWidth;
         if (this.direction == "up" && this.y > bulletLowMargin) {
             this.y -= this.bulletSpeed;   
         }
@@ -196,9 +203,9 @@ function playerBullet(player, enemyArray, bulletArray, bulletCount) {
     }
     this.checkHitAndClear = function() {
     	//for getting bullet coord
-    	bulletOffset = 10;
-    	highBoundryX = 500;
-    	highBoundryY = 500;
+    	bulletOffset = bulletWidth / 2;
+    	highBoundryX = canvasWidth;
+    	highBoundryY = canvasHeight;
     	lowBoundryX = 0;
     	lowBoundryY = 0;
         if (this.direction == "up") {
@@ -284,30 +291,30 @@ function enemy(player) {
     this.speedX = 1;
     this.speedY = 1;
     //random spawn location
-    this.x = Math.random() * 250;
-    this.y = Math.random() * 200;
+    this.x = Math.random() * canvasWidth / 2;
+    this.y = Math.random() * 0.2 * canvasHeight;
     //for boss
     this.enemyLife = 6;
     this.enemyType = Math.random();
     this.drawEnemy = function() {
         if (this.enemyType < 0.25) {
-            this.bodyWidth = 40;
-            this.bodyHeight = 40;
+            this.bodyWidth = 4/50 * canvasWidth;
+            this.bodyHeight = this.bodyWidth;
             this.bodyColor = "#FFB2B2";
         }
         if (this.enemyType >= 0.25 && this.enemyType < 0.5) {
-            this.bodyWidth = 40;
-            this.bodyHeight = 40;
+            this.bodyWidth = 4/50 * canvasWidth;
+            this.bodyHeight = this.bodyWidth;
             this.bodyColor = "#FF4C4C";
         }
         if (this.enemyType >= 0.5 && this.enemyType < 0.8) {
-            this.bodyWidth = 30;
-            this.bodyHeight = 30;
+            this.bodyWidth = 3/50 * canvasWidth;
+            this.bodyHeight = this.bodyWidth;
             this.bodyColor = "#FF0000";
         }
         if (this.enemyType >= 0.8) {
-            this.bodyWidth = this.enemyLife * 10;
-            this.bodyHeight = this.enemyLife * 10;
+            this.bodyWidth = this.enemyLife * 1/50 * canvasWidth;
+            this.bodyHeight = this.bodyWidth;
             this.bodyColor = "#7F0000";
         }
     	ctx = myGameArea.context;
