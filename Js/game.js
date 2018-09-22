@@ -256,13 +256,14 @@ function playerBullet(player, enemyArray, bulletArray, bulletCount) {
                     if (enemyArray[i].enemyLife <= 2) {
                         enemyArray.splice(i, 1);
                     }
-                    return;
                 }
-                //remove bullet from bullet array
-                this.bulletArray.splice(bulletCount - 1, 1);
-                bulletCount--;
-                //remove enemy from enemy array
-                enemyArray.splice(i, 1);
+                else {
+                    //remove bullet from bullet array
+                    this.bulletArray.splice(bulletCount - 1, 1);
+                    bulletCount--;
+                    //remove enemy from enemy array
+                    enemyArray.splice(i, 1);
+                }
             }
         }
         //check if nextlevel
