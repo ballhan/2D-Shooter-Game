@@ -1,13 +1,13 @@
 html {
-	background-color: #F0F8FF;
+    background-color: #FFF;
 }
 
 body {
-	padding-top: 1%;
+	padding-top: 2%;
 }
 
 canvas {
-    border: 5px solid #FFFFFF;
+    border: 5px solid #000;
     background-color: #F1F1F1;
     padding-left: 0;
     padding-right: 0;
@@ -18,6 +18,6 @@ canvas {
 
 h1 {
 	text-align: center;
-	font-family: 'Neucha', cursive;
+    font-family: 'Courier New', Courier, monospace;
 }
 
