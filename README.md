@@ -1,5 +1,5 @@
-# 2D-Shooting-Game
-This is a desktop web game [https://ballhan.github.io/2D-Shooting-Game/](https://ballhan.github.io/2D-Shooting-Game/) 
+# shootingGameJs
+This is a web game [https://ballhan.github.io/shootingGameJs/](https://ballhan.github.io/shootingGameJs/) 
   * Html
   * CSS
   * JavaScript
